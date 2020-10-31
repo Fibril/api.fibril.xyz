@@ -1,0 +1,19 @@
+# Do not index directories.
+Options -Indexes
+
+# Don't automatically 'fix' requested urls, as it messes with the API.
+DirectorySlash Off
+
+# Make session cookies timeout after 7 days.
+php_value session.gc_maxlifetime 604800
+php_value session.cookie_lifetime 604800
+
+# Make cache expire after 7 days.
+php_value session.cache_expire 10080
+
+lsapi_phpini /home/davidfrp/api.fibril.xyz/php.ini
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^([^\.]+) index.php?url=$1
+</IfModule>
