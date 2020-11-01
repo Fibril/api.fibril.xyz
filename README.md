@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   A simple implementation of a RESTful API for the Fibril Discord bot.<br><br>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" /></a>
+  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" /></a>
 </p>
 
 ## Description
