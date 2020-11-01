@@ -4,41 +4,34 @@ abstract class Database
 {
     private $connection;
 
-    // public function __construct() // TODO: Try and make this a protected constructor.
-    // {
-
-    // }
-
     /**
      * Performs a query on the database.
      *
-     * @param string $sql
-     * @param array $data
-     * @param bool $assoc Whether to return an associative array.
-     * @return bool|array If the $fetchData parameter is true, then it fetches and returns 
-     * the data as an associative array. Otherwise true on success, false on failure.
+     * @param  string     $sql          The query that'll be performed.
+     * @param  array      $inputParams  An array of values with as many elements as there are bound parameters in the query.
+     * @param  bool       $assoc        Whether to return an associative array.
+     * @return bool|array               If the $fetchData parameter is true, then it fetches and returns the data as 
+     *                                  an associative array. Otherwise true on success, false on failure.
      */
-    protected function query($sql, array $data, bool $fetchData = false)
+    protected function query($sql, array $inputParams, bool $fetchData = false)
     {
         if ($this->connection === null)
             $this->connect();
 
         $statement = $this->connection->prepare($sql);
 
-        for ($i = 1; $i <= count($data); $i++)
+        for ($i = 1; $i <= count($inputParams); $i++)
         {
             // https://www.php.net/manual/en/pdostatement.bindparam.php
             // https://www.php.net/manual/en/pdo.constants.php
 
             $dataType = PDO::PARAM_STR;
 
-            if (is_int($data[$i - 1]))
+            if (is_int($inputParams[$i - 1]))
                 $dataType = PDO::PARAM_INT;
 
-            $statement->bindParam($i, $data[$i - 1], $dataType);
+            $statement->bindParam($i, $inputParams[$i - 1], $dataType);
         }
-
-        // $statement->debugDumpParams();
 
         $wasSuccessful = $statement->execute();
 
@@ -51,8 +44,8 @@ abstract class Database
     /**
      * Prepares a query and gets a statement object in return.
      *
-     * @param string $query The SQL query that'll be executed against the database.
-     * @return PDOStatement The prepared statement.
+     * @param  string       $query The SQL query that'll be executed against the database.
+     * @return PDOStatement        The prepared statement.
      */
     protected function prepare($sql)
     {

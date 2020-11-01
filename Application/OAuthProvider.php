@@ -90,8 +90,6 @@ class OAuthProvider
         // Create JWT.
         $jwt = $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
 
-        setcookie('__Secure-Fibril-Token', $jwt, 0, '', '.fibril.xyz', true, true);
-
         return $jwt;
     }
 

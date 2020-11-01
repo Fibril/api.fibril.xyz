@@ -1,5 +1,9 @@
 <?php
 
+header('Access-Control-Allow-Origin: *');
+// header('Access-Control-Allow-Origin: https://fibril.xyz/');
+// header('Access-Control-Allow-Methods: GET, POST');
+
 include __DIR__ . '/Includes/Autoloader.php';
 
 define('FIBRIL_EPOCH', 1555452000000); // Fibril's birthday, 17th of April 2019.
@@ -28,7 +32,7 @@ function http($options)
 
 $routeCollector = new RouteCollector();
 
-$routeCollector->get('/redirect', function ($request)
+$routeCollector->get('/discord-authorize', function ($request)
 {
     $_SESSION['state'] = bin2hex(random_bytes(16));
 
@@ -41,8 +45,8 @@ $routeCollector->get('/discord-callback', function ($request)
 {
     $params = $request->getQuery();
 
-    echo $_SESSION['state'] . "<br>";
-    echo $params['state'] . "<br>";
+    // echo $_SESSION['state'] . "<br>";
+    // echo $params['state'] . "<br>";
 
     if (isset($_SESSION['state']) !== true || $_SESSION['state'] !== $params['state'])
         die('<br>Bad state.');
@@ -70,13 +74,11 @@ $routeCollector->get('/discord-callback', function ($request)
     $result = json_decode($result);
 
     if ($result->error)
-    {
         die('<script>if (window.opener && window.opener !== window) { window.close(); }</script>');
-    }
 
-    $_SESSION['expires_in'] = $result->expires_in;
-    $_SESSION['access_token'] = $result->access_token;
-    $_SESSION['refresh_token'] = $result->refresh_token;
+    // $_SESSION['expires_in'] = $result->expires_in;
+    // $_SESSION['access_token'] = $result->access_token;
+    // $_SESSION['refresh_token'] = $result->refresh_token;
 
     echo "<script>document.domain = 'fibril.xyz'; if (window.opener && window.opener !== window) { window.opener.redirect(); window.close(); } else { window.location.href = 'https://fibril.xyz/dashboard'; }</script>";
     die();
@@ -96,6 +98,10 @@ $routeCollector->get('/favicon.ico', function ($request)
 });
 
 $routeCollector->get('/authorize', function ($request)
+{
+});
+
+$routeCollector->get('/auth/login', function ($request)
 {
 });
 

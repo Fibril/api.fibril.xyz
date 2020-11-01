@@ -49,7 +49,7 @@ class IncidentMapper extends Mapper
     }
 
     /**
-     * Insert the DomainObject in persistent storage
+     * Insert the DomainObject in persistent storage.
      *
      * @param DomainObjectAbstract $object
      */
@@ -106,7 +106,7 @@ class IncidentMapper extends Mapper
     }
 
     /**
-     * Update the Incident to the database.
+     * Update the Incident to persistent storage.
      *
      * @param DomainObjectAbstract $object
      */
@@ -128,7 +128,7 @@ class IncidentMapper extends Mapper
     }
 
     /**
-     * Delete the Incident from the database
+     * Delete the Incident from persistent storage
      *
      * @param DomainObjectAbstract $object
      */
@@ -225,34 +225,23 @@ class IncidentMapper extends Mapper
 
     /**
      * Retrieves all incidents.
-     *
-     * @return array
+     * 
+     * @param  string $search  Any whole or partial search for username or their user id.
+     * @param  int    $perPage Maximum amount of incidents to be returned.
+     * @param  int    $page    Current page number.
+     * @param  string $after   Fetches all incidents after this incident id.
+     * @param  string $before  Fetches all incidents before this incident id.
+     * @return array           (empty array if none found)
      */
     public function findAll($search = null, $perPage = null, $page = null, $after = null, $before = null)
     {
         if (is_null($before) || $before < 1)
-        {
             $before = (round(microtime(true) * 1000) - FIBRIL_EPOCH) << 22;
-        }
 
         if (is_null($after) || $after > $before)
-        {
             $after = 0;
-        }
 
         $search = is_null($search) || empty($search) ? '%' : '%' . strtolower($search) . '%';
-
-        // $sql = 'SELECT * FROM incidents WHERE guild_id = ? AND id = ?';
-
-        // $sql = 'SELECT * FROM incidents WHERE (LOWER(incidents.staff_username)
-        //         LIKE :search_term OR LOWER(incidents.staff_id)
-        //         LIKE :search_term OR LOWER(incidents.offender_username)
-        //         LIKE :search_term OR LOWER(incidents.offender_id)
-        //         LIKE :search_term) AND incidents.guild_id = :guild_id AND incidents.date_occurred
-        //         BETWEEN FROM_UNIXTIME(:min_time) AND FROM_UNIXTIME(:max_time)
-        //         ORDER BY incidents.id DESC LIMIT :per_page OFFSET :offset';
-
-        // (round(microtime(true) * 1000) - FIBRIL_EPOCH) << 22 = CURRENT_TIME_SNOWFLAKE
 
         // Amount of incidents per page defaults to 30 if below 1, null, or NaN.
         $perPage = intval(is_null($perPage) || $perPage < 1 ? 30 : ($perPage > 100 ? 100 : $perPage));
@@ -282,126 +271,17 @@ class IncidentMapper extends Mapper
             $before,
             $perPage,
             $offset,
-        ], PDO::FETCH_ASSOC);
+        ], true);
 
         $incidents = [];
         foreach ($results as $result)
         {
             $incident = $this->create($result);
+
+            // TODO: Add some hal+json like pagination to each incident before they all get pushed together.
             array_push($incidents, $incident);
         }
 
         return $incidents;
     }
-
-    /**
-     * Retrieves incident by username
-     *
-     * @param  string   $username
-     * @return Incident (null if not found)
-     */
-    // public function findByUsername($username)
-    // {
-    //     $sql = "SELECT id,username,password FROM users WHERE username=?";
-
-    //     $data = $this->dbAdapter->fetchRow($sql, array($username), Zend_Db::FETCH_ASSOC);
-
-    //     $incident = null;
-
-    //     if ($data != false)
-    //     {
-    //         $incident = $this->create();
-    //     }
-
-    //     return $incident;
-    // }
-
-    // private $guildId;
-
-    // public function __construct($guildId)
-    // {
-    //     // FIXME: The guild id MUST be valid and the user SHALL be authorized before any property is initialized.
-    //     $this->guildId = $guildId;
-    // }
-
-    // public function getIncidents($search, $page, $perPage, $after, $before)
-    // {
-    //     $sql = "SELECT * FROM incidents WHERE (LOWER(incidents.staff_username)
-    //             LIKE :search_term OR LOWER(incidents.staff_id)
-    //             LIKE :search_term OR LOWER(incidents.offender_username)
-    //             LIKE :search_term OR LOWER(incidents.offender_id)
-    //             LIKE :search_term) AND incidents.guild_id = :guild_id AND incidents.date_occurred
-    //             BETWEEN FROM_UNIXTIME(:min_time) AND FROM_UNIXTIME(:max_time)
-    //             ORDER BY incidents.id DESC LIMIT :per_page OFFSET :offset";
-
-    //     $statement = $this->prepare($sql);
-
-    //     if (intval($page) < 1)
-    //         $page = 1;
-
-    //     if (intval($perPage) < 1)
-    //         $perPage = 30;
-
-    //     $offset = (intval($page) - 1) * min(intval($perPage), 100);
-
-    //     if ($search !== '%')
-    //         $search = '%' . strtolower($search) . '%';
-
-    //     $statement->bindParam(':guild_id', $this->guildId);
-    //     $statement->bindParam(':search_term', $search);
-    //     $statement->bindParam(':min_time', $after);
-    //     $statement->bindParam(':max_time', $before);
-    //     $statement->bindParam(':per_page', $perPage, PDO::PARAM_INT);
-    //     $statement->bindParam(':offset', $offset, PDO::PARAM_INT);
-    //     $wasSuccessful = $statement->execute();
-
-    //     if (!$wasSuccessful)
-    //         return false;
-
-    //     $results = $statement->fetchAll();
-
-    //     $incidents = array();
-    //     foreach ($results as $result)
-    //     {
-    //         $incident = $this->mapRowToIncident($result);
-    //         array_push($incidents, $incident);
-    //     }
-
-    //     return $incidents;
-    // }
-
-    // public function getIncident($incidentId)
-    // {
-    //     $sql = "SELECT * FROM incidents WHERE guild_id = :guild_id AND id = :incident_id";
-    //     $statement = $this->prepare($sql);
-    //     $statement->bindParam(':guild_id', $this->guildId);
-    //     $statement->bindParam(':incident_id', $incidentId);
-    //     $wasSuccessful = $statement->execute();
-
-    //     if (!$wasSuccessful)
-    //         return false;
-
-    //     $result = $statement->fetch();
-
-    //     if ($result === false)
-    //         return false;
-
-    //     return $this->mapRowToIncident($result);
-    // }
-
-    // public function createIncident()
-    // {
-    //     // return new Incident();
-    // }
-
-    // public function deleteIncident($incident)
-    // {
-
-    // }
-
-    // //private function mapRowToIncident(array $row): Incident
-    // private function mapRowToIncident($row)
-    // {
-    //     return entity\Incident::fromState($row);
-    // }
 }
