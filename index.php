@@ -173,12 +173,12 @@ GET https://api.github.com/user
 use Incidents\Handler;
 
 $routeCollector->get('/guilds/{guild_id}/incidents', Handler\IncidentsReadHandler::class);
-$routeCollector->post('/guilds/{guild_id}/incidents', Handler\IncidentsCreateHandler::class);
+// $routeCollector->post('/guilds/{guild_id}/incidents', Handler\IncidentsCreateHandler::class);
 
 $routeCollector->get('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentReadHandler::class);
-$routeCollector->delete('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentDeleteHandler::class);
+// $routeCollector->delete('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentDeleteHandler::class);
 // $routeCollector->put('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentUpdateHandler::class); // TODO: { "client_id": ["This field is required"] }
-$routeCollector->patch('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentUpdateHandler::class);
+// $routeCollector->patch('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentUpdateHandler::class);
 
 $dispatcher = new Dispatcher($routeCollector);
 $responseStatus = $dispatcher->dispatch(new Request());
