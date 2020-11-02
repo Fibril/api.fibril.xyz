@@ -1,8 +1,10 @@
 <?php
 
+use Services\Auth\JwtGuard;
+
 class Dispatcher extends RouteCollector
 {
-    public const NOT_FOUND = 0, FOUND = 1, METHOD_NOT_ALLOWED = 2;
+    public const NOT_FOUND = 0, FOUND = 1, METHOD_NOT_ALLOWED = 2, UNAUTHORIZED = 3;
 
     private $routeCollector;
 
@@ -14,8 +16,9 @@ class Dispatcher extends RouteCollector
 
     /**
      * Performs routing using the given request.
-     * @param Request $request A request that which will be dispatched through routes to handlers.
-     * @return Dispatcher::NOT_FOUND|Dispatcher::FOUND|Dispatcher::METHOD_NOT_ALLOWED Status code indicating the immediate result of routing the given request.
+     * @param  Request $request A request that which will be dispatched through routes to handlers.
+     * @return Dispatcher::NOT_FOUND|Dispatcher::FOUND|Dispatcher::METHOD_NOT_ALLOWED|Dispatcher::UNAUTHORIZED 
+     *         Status code indicating the immediate result of routing the given request.
      */
     public function dispatch(Request $request)
     {
@@ -34,6 +37,9 @@ class Dispatcher extends RouteCollector
 
                     if ($request->getMethod() === $method)
                     {
+                        if (JwtGuard::isAuthorized() !== true)
+                            return self::UNAUTHORIZED;
+
                         // Removes the first match as it is just the requested path.
                         array_shift($matches);
 

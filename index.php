@@ -90,61 +90,22 @@ $routeCollector->get('/discord-callback', function ($request)
 // If the token isn't set in the __Secure-Fibril-Token, or missing from a Authorization header, or simply isn't valid, the WWW-Authenticate header is sent along with a 401 Unauthorized response.
 // header('WWW-Authenticate: Bearer realm="/users/@me"');
 
-$routeCollector->get('/favicon.ico', function ($request)
-{
-    // header('Referrer-Policy: strict-origin-when-cross-origin');
-    http_response_code(204);
-    die();
-});
+// $routeCollector->post('/token', function ($request)
+// {
+//     $grantType = $request->getData()['grant_type'];
 
-$routeCollector->get('/authorize', function ($request)
-{
-});
+//     $auth = new OAuthProvider();
+//     $jwt = $auth->issueToken('12345');
 
-$routeCollector->get('/auth/login', function ($request)
-{
-});
+//     header('Content-Type: application/json');
 
-$routeCollector->post('/token', function ($request)
-{
-    $grantType = $request->getData()['grant_type'];
-
-    $auth = new OAuthProvider();
-    $jwt = $auth->issueToken('12345');
-
-    header('Content-Type: application/json');
-
-    die(json_encode([
-        'access_token' => $jwt,
-        'token_type' => 'JWT',
-        'expires_in' => 120,
-        'refresh_token' => 'tGzv3JOkF0XG5Qx2TlKWIA'
-    ]));
-});
-
-$routeCollector->post('/token/revoke', function ($request)
-{
-});
-
-$routeCollector->get('/test', function ($request)
-{
-    $auth = new OAuthProvider();
-    // $token = $auth->signInWithDiscordToken($_SESSION['access_token']);
-
-    $jwt = $auth->issueToken("12345");
-
-    echo '$auth->isLoggedIn() ⇒ ';
-    var_dump($auth->isLoggedIn());
-    echo '<br>';
-    echo '<pre>$_COOKIE ⇒ ';
-    var_dump($_COOKIE);
-    echo '</pre>';
-    die();
-
-    echo '<pre>$_SESSION[\'access_token\'] ⇒ ' . $_SESSION['access_token'] . '</pre>';
-
-    die();
-});
+//     die(json_encode([
+//         'access_token' => $jwt,
+//         'token_type' => 'JWT',
+//         'expires_in' => 120,
+//         'refresh_token' => 'tGzv3JOkF0XG5Qx2TlKWIA'
+//     ]));
+// });
 
 // /authorize?response_type=code&client_id=s6BhdRkqt3&state=xyz&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
 // /authorize?response_type=token&client_id=s6BhdRkqt3&state=xyz&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
@@ -171,13 +132,16 @@ GET https://api.github.com/user
  */
 
 use Incidents\Handler;
+use Services\Auth\DiscordLoginHandler;
+
+$routeCollector->get('/auth/login', DiscordLoginHandler::class);
 
 $routeCollector->get('/guilds/{guild_id}/incidents', Handler\IncidentsReadHandler::class);
 // $routeCollector->post('/guilds/{guild_id}/incidents', Handler\IncidentsCreateHandler::class);
 
 $routeCollector->get('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentReadHandler::class);
 // $routeCollector->delete('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentDeleteHandler::class);
-// $routeCollector->put('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentUpdateHandler::class); // TODO: { "client_id": ["This field is required"] }
+// $routeCollector->put('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentUpdateHandler::class); // TODO: { "guild_id": ["This field is required"] }
 // $routeCollector->patch('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentUpdateHandler::class);
 
 $dispatcher = new Dispatcher($routeCollector);
@@ -195,6 +159,12 @@ switch ($responseStatus)
         header('Content-Type: application/json');
         http_response_code(405);
         die(json_encode(['message' => 'Method Not Allowed', 'documentation_url' => 'https://docs.fibril.xyz/api'], JSON_PRETTY_PRINT));
+        break;
+
+    case Dispatcher::UNAUTHORIZED:
+        header('Content-Type: application/json');
+        http_response_code(401);
+        die(json_encode(array('message' => 'Unauthorized', 'documentation_url' => 'https://docs.fibril.xyz/api'), JSON_PRETTY_PRINT));
         break;
 }
 
