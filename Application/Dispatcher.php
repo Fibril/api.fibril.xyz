@@ -37,8 +37,13 @@ class Dispatcher extends RouteCollector
 
                     if ($request->getMethod() === $method)
                     {
-                        if (JwtGuard::isAuthorized() !== true)
-                            return self::UNAUTHORIZED;
+                        if ($method != 'GET')
+                        {
+                            if (JwtGuard::isAuthorized() !== true)
+                            {
+                                return self::UNAUTHORIZED;
+                            }
+                        }
 
                         // Removes the first match as it is just the requested path.
                         array_shift($matches);
