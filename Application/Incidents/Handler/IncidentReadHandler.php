@@ -2,11 +2,13 @@
 
 namespace Incidents\Handler;
 
-class IncidentReadHandler// implements HandlerInterface
+use IncidentMapper;
+
+class IncidentReadHandler
 {
     public function __invoke($guildId, $incidentId, $request)
     {
-        $incidentMapper = new \IncidentMapper($guildId);
+        $incidentMapper = new IncidentMapper($guildId);
 
         // Find the incident with the given id.
         $incident = $incidentMapper->findById($incidentId);

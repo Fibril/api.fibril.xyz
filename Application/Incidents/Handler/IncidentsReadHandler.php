@@ -2,11 +2,13 @@
 
 namespace Incidents\Handler;
 
+use IncidentMapper;
+
 class IncidentsReadHandler
 {
     public function __invoke($guildId, $request)
     {
-        $incidentMapper = new \IncidentMapper($guildId);
+        $incidentMapper = new IncidentMapper($guildId);
 
         $params = $request->getQuery();
 

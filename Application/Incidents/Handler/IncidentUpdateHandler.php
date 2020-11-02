@@ -2,11 +2,13 @@
 
 namespace Incidents\Handler;
 
+use IncidentMapper;
+
 class IncidentUpdateHandler
 {
-    public function __invoke($guildId, $incidentId, $request) 
+    public function __invoke($guildId, $incidentId, $request)
     {
-        $incidentMapper = new \IncidentMapper($guildId);
+        $incidentMapper = new IncidentMapper($guildId);
 
         // Find the incident with the given id.
         $incident = $incidentMapper->findById($incidentId);
@@ -24,7 +26,7 @@ class IncidentUpdateHandler
             // Ensure that a new guild id doesn't get parsed.
             if (isset($data['guild_id']))
                 unset($data['guild_id']);
-            
+
             // Populate the incident with the new data.
             $incidentMapper->populate($incident, $data);
 
