@@ -4,10 +4,10 @@ namespace Services\Auth;
 
 class JwtGuard
 {
-    public static function isAuthorized(array $requiredParameters = [])
+    public static function isAuthorized(array $payload = [])
     {
         if (isset($_COOKIE['__Secure-Fibril-Token']))
-            return self::validate($_COOKIE['__Secure-Fibril-Token']);
+            return self::validate($_COOKIE['__Secure-Fibril-Token'], $payload);
 
         return false;
     }
@@ -30,6 +30,14 @@ class JwtGuard
                 // Check whether the expiry timestamp is ahead of the current timestamp.
                 if ($header->exp > $currentTimestamp)
                 {
+                    foreach ($payload as $key => $value)
+                    {
+                        if (json_decode(self::base64url_decode($base64UrlPayload), true)[$key] !== $value)
+                        {
+                            return false;
+                        }
+                    }
+
                     return true;
                 }
             }
@@ -52,7 +60,7 @@ class JwtGuard
         $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256', 'exp' => $expiryTimestamp]);
 
         // Create token payload as a JSON string.
-        $payload = json_encode(['user_id' => $identifier]);
+        $payload = json_encode(['user_id' => $identifier, 'guild_id' => '678840415494995988']);
 
         // Encode Header to Base64Url string.
         $base64UrlHeader = self::base64url_encode($header);
@@ -74,11 +82,11 @@ class JwtGuard
 
     private static function base64url_encode($data)
     {
-        return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 
     private static function base64url_decode($data)
     {
-        return str_replace(['-', '_', ''], ['+', '/', '='], base64_decode($data));
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
     }
 }

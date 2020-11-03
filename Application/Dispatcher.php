@@ -37,23 +37,18 @@ class Dispatcher extends RouteCollector
 
                     if ($request->getMethod() === $method)
                     {
-                        if ($method != 'GET')
-                        {
-                            if (JwtGuard::isAuthorized() !== true)
-                            {
-                                return self::UNAUTHORIZED;
-                            }
-                        }
-
                         // Removes the first match as it is just the requested path.
                         array_shift($matches);
 
                         $matches['request'] = $request;
 
                         // Calls the callback with its parameters as the matches.
-                        call_user_func_array($callback, $matches);
+                        $result = call_user_func_array($callback, $matches);
 
-                        return self::FOUND;
+                        if (in_array($result, [self::NOT_FOUND, self::FOUND, self::METHOD_NOT_ALLOWED, self::UNAUTHORIZED]))
+                            return $result;
+
+                        return self::FOUND; // TODO: Revise again, as when do we ever actually return self::FOUND?
                     }
                 }
             }
