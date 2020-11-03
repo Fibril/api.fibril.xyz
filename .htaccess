@@ -15,5 +15,5 @@ lsapi_phpini /home/davidfrp/api.fibril.xyz/php.ini
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^([^\.]+) index.php?url=$1
+    RewriteRule ^([^\.]+) Controller.php?url=$1
 </IfModule>
