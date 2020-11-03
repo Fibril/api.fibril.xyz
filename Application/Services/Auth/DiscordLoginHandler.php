@@ -18,7 +18,7 @@ class DiscordLoginHandler extends JwtGuard
 
         if (isset($_SESSION['state']) && $_SESSION['state'] === $params['state'])
         {
-            $result = json_decode(http([
+            $result = json_decode($this->http([
                 CURLOPT_URL => 'https://discord.com/api/oauth2/token',
                 CURLOPT_POST => 1,
                 CURLOPT_RETURNTRANSFER => true,
@@ -34,10 +34,7 @@ class DiscordLoginHandler extends JwtGuard
             ]));
 
             if ($result->error)
-                die('ERROR: ' . $result->error->getMessage());
-
-            // if ($result->error)
-            //     die('<script>if (window.opener && window.opener !== window) { window.close(); }</script>');
+                die('<script>if (window.opener && window.opener !== window) { window.close(); }</script>');
 
             $this->discordToken = $result->access_token;
             $this->discordTokenExpiresIn = $result->expires_in;
