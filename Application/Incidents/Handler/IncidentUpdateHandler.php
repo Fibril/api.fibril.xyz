@@ -2,12 +2,17 @@
 
 namespace Incidents\Handler;
 
+use Dispatcher;
 use IncidentMapper;
+use Services\Auth\JwtGuard;
 
 class IncidentUpdateHandler
 {
     public function __invoke($guildId, $incidentId, $request)
     {
+        if (JwtGuard::isAuthorized(['guild_ids' => [$guildId => []]]) !== true)
+            return Dispatcher::UNAUTHORIZED;
+
         $incidentMapper = new IncidentMapper($guildId);
 
         // Find the incident with the given id.
@@ -33,12 +38,9 @@ class IncidentUpdateHandler
             // Save the incident to storage.
             $incidentMapper->save($incident);
 
-            // 204: No Content reponse code as per RFC 2616 Section 9.6
-            http_response_code(204);
-            die();
+            return Dispatcher::NO_CONTENT;
         }
 
-        http_response_code(404);
-        die(json_encode(array('message' => 'Not Found', 'documentation_url' => 'https://docs.fibril.xyz/api'), JSON_PRETTY_PRINT));
+        return Dispatcher::NOT_FOUND;
     }
 }

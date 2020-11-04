@@ -2,23 +2,28 @@
 
 namespace Incidents\Handler;
 
+use Dispatcher;
 use IncidentMapper;
+use Services\Auth\JwtGuard;
 
 class IncidentsReadHandler
 {
     public function __invoke($guildId, $request)
     {
+        if (JwtGuard::isAuthorized(['guild_ids' => [$guildId => []]]) !== true)
+            return Dispatcher::UNAUTHORIZED;
+
         $incidentMapper = new IncidentMapper($guildId);
 
         $params = $request->getQuery();
 
         // Find the incident with the given id.
         $incidents = $incidentMapper->findAll(
-            $params['search'],
-            $params['per_page'],
-            $params['page'],
-            $params['after'],
-            $params['before']
+            $params['search'] ?? null,
+            $params['per_page'] ?? null,
+            $params['page'] ?? null,
+            $params['after'] ?? null,
+            $params['before'] ?? null
         );
 
         header('Content-Type: application/json');
@@ -27,7 +32,6 @@ class IncidentsReadHandler
         if ($incidents !== false)
             die(json_encode($incidents, JSON_PRETTY_PRINT)); // TODO: Apply link headers for proper pagination navigation. e.g. header('Link: <https://example.com/users?page=1>; rel="prev", <https://example.com/users?page=3>; rel="next"');
 
-        http_response_code(404);
-        die(json_encode(array('message' => 'Not Found', 'documentation_url' => 'https://docs.fibril.xyz/api'), JSON_PRETTY_PRINT));
+        return Dispatcher::NOT_FOUND;
     }
 }

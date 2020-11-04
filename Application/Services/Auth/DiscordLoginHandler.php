@@ -28,12 +28,12 @@ class DiscordLoginHandler extends JwtGuard
                     'client_secret' => Config::get('discord', 'client_secret'),
                     'grant_type' => 'authorization_code',
                     'code' => $params['code'],
-                    'redirect_uri' => 'https://api.fibril.xyz/auth/login',
+                    'redirect_uri' => 'https://api.fibril.xyz/login',
                     'scope' => 'identify%20guilds'
                 ])
             ]));
 
-            if ($result->error)
+            if (isset($result->error))
                 die('<script>if (window.opener && window.opener !== window) { window.close(); }</script>');
 
             $this->discordToken = $result->access_token;
@@ -48,7 +48,7 @@ class DiscordLoginHandler extends JwtGuard
 
             if (isset($user))
             {
-                setcookie('__Secure-Fibril-Token', JwtGuard::issueToken($user->id), 0, '/', '.fibril.xyz', true, true);
+                setcookie('__Secure-Fibril-Token', JwtGuard::issueToken($user->id), 0, '/', 'fibril.xyz', true, false);
 
                 // Destroys the current session.
                 setcookie(session_name(), '', time() - 3600);
@@ -60,7 +60,7 @@ class DiscordLoginHandler extends JwtGuard
         }
 
         $_SESSION['state'] = bin2hex(random_bytes(16));
-        header('Location: https://discord.com/api/oauth2/authorize?client_id=568041297349443595&redirect_uri=https%3A%2F%2Fapi.fibril.xyz%2Fauth%2Flogin&response_type=code&scope=guilds%20identify&state=' . $_SESSION['state']);
+        header('Location: https://discord.com/api/oauth2/authorize?client_id=568041297349443595&redirect_uri=https%3A%2F%2Fapi.fibril.xyz%2Flogin&response_type=code&scope=identify%20guilds&state=' . $_SESSION['state']);
         die();
     }
 

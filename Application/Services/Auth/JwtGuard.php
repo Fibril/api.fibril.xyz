@@ -12,7 +12,7 @@ class JwtGuard
         return false;
     }
 
-    private static function validate($token, array $payload = []) // TODO: Check if all required params are present in the JWT.
+    private static function validate($token, array $partialPayload = [])
     {
         $token = explode('.', $token);
 
@@ -25,25 +25,70 @@ class JwtGuard
             if (hash_hmac('sha256', $base64UrlHeader . '.' . $base64UrlPayload, JWT_SECRET) === $signature)
             {
                 $header = json_decode(base64_decode($base64UrlHeader));
-                $currentTimestamp = round(microtime(true) * 1000); // Current timestamp in milliseconds.
+                $currentTimestamp = time(); // round(microtime(true) * 1000); // Current timestamp in milliseconds.
 
                 // Check whether the expiry timestamp is ahead of the current timestamp.
                 if ($header->exp > $currentTimestamp)
                 {
-                    foreach ($payload as $key => $value)
+                    if (self::array_exists_in_array($partialPayload, json_decode(self::base64url_decode($base64UrlPayload), true)))
                     {
-                        if (json_decode(self::base64url_decode($base64UrlPayload), true)[$key] !== $value)
-                        {
-                            return false;
-                        }
+                        return true;
                     }
 
-                    return true;
+                    // Compared payload didn't match.
                 }
+
+                // Token expired.
             }
         }
 
         return false;
+    }
+
+    private static function array_exists_in_array(array $needle, array $haystack): bool
+    {
+        foreach ($needle as $key => $value)
+        {
+            // If the other array doesn't have this key, fail.
+            if (!array_key_exists($key, $haystack))
+            {
+                return false;
+            }
+
+            // Make sure the values are the same type, otherwise fail.
+            if (gettype($value) !== gettype($haystack[$key]))
+            {
+                return false;
+            }
+
+            // For scalar types, test them directly.
+            if (is_scalar($value))
+            {
+                if ($value !== $haystack[$key])
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            // For array, recurse into this same function.
+            if (is_array($value))
+            {
+                if (!self::array_exists_in_array($value, $haystack[$key]))
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            // For anything else, fail or write some other logic.
+            throw new \Exception('Unsupported type');
+        }
+
+        // The loop passed without return false, so it is a subset.
+        return true;
     }
 
     /**
@@ -53,14 +98,20 @@ class JwtGuard
      */
     protected static function issueToken($identifier)
     {
-        $currentTimestamp = round(microtime(true) * 1000); // Current timestamp in milliseconds.
-        $expiryTimestamp = $currentTimestamp + 120000; // 2 minutes = 120000 milliseconds // 60 minutes = 3600000 milliseconds.
+        // $currentTimestamp = round(microtime(true) * 1000); // Current timestamp in milliseconds.
+        $currentTimestamp = time();
+        $expiryTimestamp = $currentTimestamp + 3600; // 2 minutes = 120000 milliseconds // 60 minutes = 3600000 milliseconds.
 
         // Create token header as a JSON string https://tools.ietf.org/html/rfc7519#section-4
         $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256', 'exp' => $expiryTimestamp]);
 
         // Create token payload as a JSON string.
-        $payload = json_encode(['user_id' => $identifier, 'guild_id' => '678840415494995988']);
+        // $payload = json_encode(['user_id' => $identifier, 'guild_id' => '678840415494995988']);
+        $payload = json_encode(['user_id' => $identifier, 'guild_ids' => [
+            '678840415494995988' => ['owner' => true],
+            '726114818347499600' => ['owner' => false],
+            '672933392291069952' => ['owner' => false]
+        ]]);
 
         // Encode Header to Base64Url string.
         $base64UrlHeader = self::base64url_encode($header);

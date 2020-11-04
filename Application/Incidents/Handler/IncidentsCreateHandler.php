@@ -2,12 +2,17 @@
 
 namespace Incidents\Handler;
 
+use Dispatcher;
 use IncidentMapper;
+use Services\Auth\JwtGuard;
 
 class IncidentsCreateHandler
 {
     public function __invoke($guildId, $request)
     {
+        if (JwtGuard::isAuthorized(['guild_ids' => [$guildId => []]]) !== true)
+            return Dispatcher::UNAUTHORIZED;
+
         $incidentMapper = new IncidentMapper($guildId);
 
         $data = $request->getData();
