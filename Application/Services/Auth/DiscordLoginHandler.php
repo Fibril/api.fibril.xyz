@@ -55,7 +55,7 @@ class DiscordLoginHandler extends JwtGuard
                 session_destroy();
                 session_write_close();
 
-                die("<script>document.domain = 'fibril.xyz'; if (window.opener && window.opener !== window) { window.opener.redirect(); window.close(); } else { window.location.href = 'https://fibril.xyz/dashboard'; }</script>");
+                die("<script>document.domain = 'fibril.xyz'; if (window.opener && window.opener !== window) { window.opener.login(); window.close(); } else { window.location.href = 'https://fibril.xyz/dashboard'; }</script>");
             }
         }
 
