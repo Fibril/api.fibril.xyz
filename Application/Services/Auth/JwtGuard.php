@@ -100,7 +100,7 @@ class JwtGuard
     {
         // $currentTimestamp = round(microtime(true) * 1000); // Current timestamp in milliseconds.
         $currentTimestamp = time();
-        $expiryTimestamp = $currentTimestamp + 3600; // 2 minutes = 120000 milliseconds // 60 minutes = 3600000 milliseconds.
+        $expiryTimestamp = $currentTimestamp + 604800; // 2 minutes = 120 seconds. // 60 minutes = 3600 seconds. // 7 days = 604800 seconds.
 
         // Create token header as a JSON string https://tools.ietf.org/html/rfc7519#section-4
         $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256', 'exp' => $expiryTimestamp]);
