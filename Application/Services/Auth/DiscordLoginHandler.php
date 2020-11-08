@@ -27,14 +27,14 @@ class DiscordLoginHandler extends JwtGuard
                     'client_id' => '568041297349443595',
                     'client_secret' => Config::get('discord', 'client_secret'),
                     'grant_type' => 'authorization_code',
-                    'code' => $params['code'],
+                    'code' => $params['code'] ?? null,
                     'redirect_uri' => 'https://api.fibril.xyz/login',
                     'scope' => 'identify%20guilds'
                 ])
             ]));
 
             if (isset($result->error))
-                die('<script>if (window.opener && window.opener !== window) { window.close(); }</script>');
+                die('<body style="background-color: #121921;"></body><script>if (window.opener && window.opener !== window) { window.close(); } else { window.location.href = "https://fibril.xyz/" }</script>');
 
             $this->discordToken = $result->access_token;
             $this->discordTokenExpiresIn = $result->expires_in;
@@ -55,13 +55,13 @@ class DiscordLoginHandler extends JwtGuard
                 session_destroy();
                 session_write_close();
 
-                die("<script>document.domain = 'fibril.xyz'; if (window.opener && window.opener !== window) { window.opener.login(); window.close(); } else { window.location.href = 'https://fibril.xyz/dashboard'; }</script>");
+                die('<body style="background-color: #121921;"></body><script>document.domain = "fibril.xyz"; if (window.opener && window.opener !== window) { window.opener.login(); window.close(); } else { window.location.href = "https://fibril.xyz/dashboard"; }</script>');
             }
         }
 
         $_SESSION['state'] = bin2hex(random_bytes(16));
         header('Location: https://discord.com/api/oauth2/authorize?client_id=568041297349443595&redirect_uri=https%3A%2F%2Fapi.fibril.xyz%2Flogin&response_type=code&scope=identify%20guilds&state=' . $_SESSION['state']);
-        die();
+        die('<body style="background-color: #121921;"></body>');
     }
 
     private function http($options)
