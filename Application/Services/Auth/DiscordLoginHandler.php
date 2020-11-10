@@ -48,7 +48,11 @@ class DiscordLoginHandler extends JwtGuard
 
             if (isset($user))
             {
-                setcookie('__Secure-Fibril-Token', JwtGuard::issueToken($user->id), 0, '/', 'fibril.xyz', true, false);
+                setcookie('__Secure-Fibril-Token', JwtGuard::issueToken(
+                    $user->id,
+                    $user->username . '#' . $user->discriminator,
+                    'https://cdn.discordapp.com/avatars/' . $user->id . '/' . $user->avatar . (substr($user->avatar, 0, 2) === 'a_' ? '.gif' : '.png')
+                ), 0, '/', 'fibril.xyz', true, false);
 
                 // Destroys the current session.
                 setcookie(session_name(), '', time() - 3600);

@@ -93,10 +93,10 @@ class JwtGuard
 
     /**
      * Generates a JWT for use with Fibril's API.
-     * @param  string $identifier The user identifier.
+     * @param  string $userId The user's snowflake id.
      * @return string The JSON web token.
      */
-    protected static function issueToken($identifier)
+    protected static function issueToken($userId, $username, $avatarUrl)
     {
         // $currentTimestamp = round(microtime(true) * 1000); // Current timestamp in milliseconds.
         $currentTimestamp = time();
@@ -106,12 +106,17 @@ class JwtGuard
         $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256', 'exp' => $expiryTimestamp]);
 
         // Create token payload as a JSON string.
-        // $payload = json_encode(['user_id' => $identifier, 'guild_id' => '678840415494995988']);
-        $payload = json_encode(['user_id' => $identifier, 'guild_ids' => [
-            '678840415494995988' => ['owner' => true],
-            '726114818347499600' => ['owner' => false],
-            '672933392291069952' => ['owner' => false]
-        ]]);
+        // $payload = json_encode(['user_id' => $userId, 'guild_id' => '678840415494995988']);
+        $payload = json_encode([
+            'user_id' => $userId,
+            'username' => $username,
+            'avatar_url' => $avatarUrl,
+            'guild_ids' => [
+                '678840415494995988' => ['owner' => true],
+                '726114818347499600' => ['owner' => false],
+                '672933392291069952' => ['owner' => false]
+            ]
+        ]);
 
         // Encode Header to Base64Url string.
         $base64UrlHeader = self::base64url_encode($header);
