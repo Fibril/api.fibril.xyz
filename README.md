@@ -15,4 +15,4 @@
 </div>
 
 ## Description
-The backend of Fibril's RESTful API.
+Fibril's backend, her RESTful API.
