@@ -22,6 +22,8 @@ $routeCollector->get('/login', DiscordLoginHandler::class); // TODO: Does it rea
 $routeCollector->get('/guilds/{guild_id}/incidents', Handler\IncidentsReadHandler::class);
 $routeCollector->post('/guilds/{guild_id}/incidents', Handler\IncidentsCreateHandler::class);
 
+$routeCollector->get('/guilds/{guild_id}/incidents/activity', Handler\IncidentActivityHandler::class);
+
 $routeCollector->get('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentReadHandler::class);
 $routeCollector->delete('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentDeleteHandler::class);
 $routeCollector->patch('/guilds/{guild_id}/incidents/{incident_id}', Handler\IncidentUpdateHandler::class);

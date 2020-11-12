@@ -284,4 +284,24 @@ class IncidentMapper extends Mapper
 
         return $incidents;
     }
+
+    public function getActivity($after, $before)
+    {
+        if (is_null($before) || $before < 1)
+            $before = (round(microtime(true) * 1000) - FIBRIL_EPOCH) << 22;
+
+        if (is_null($after) || $after > $before)
+            $after = 0;
+
+        $sql = 'SELECT id FROM incidents WHERE guild_id = ? AND id BETWEEN ? AND ?';
+
+        $data = $this->query($sql, [$this->guildId, $after, $before], true);
+
+        $result = false;
+
+        if ($data != false)
+            $result = $data;
+
+        return $result;
+    }
 }
