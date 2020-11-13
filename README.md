@@ -20,5 +20,5 @@
 
 ## Not yet implemented
 - Rate limiting.
-- Contextual 
+- Contextual hypertext, using HATEOAS.
 - Logout system, as right now JWT just expire, which ain't good enough.
