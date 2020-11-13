@@ -20,4 +20,5 @@
 
 ## Not yet implemented
 - Rate limiting.
-- Contextual hypertext
+- Contextual 
+- Logout system, as right now JWT just expire, which ain't good enough.
