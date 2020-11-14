@@ -79,6 +79,7 @@ abstract class Database
 
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // PDO::ERRMODE_SILENT
         $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+        $this->connection->setAttribute(PDO::ATTR_TIMEOUT, 5);
     }
 
     /**
