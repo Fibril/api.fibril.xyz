@@ -2,7 +2,7 @@
   <a href="https://fibril.xyz/" target="blank"><img src="https://fibril.xyz/assets/img/fibril-smug.gif" width="320" alt="Nest Logo"/></a>
   <br>
   <br>
-  <p>A simple implementation of a RESTful API for the Fibril Discord bot.</p>
+  <p>A very CRUDe implementation of an almost RESTful API, used for the Fibril Discord bot and her website.</p>
   <br>
   <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"/></a>
   <a href="https://gitHub.com/Fibril/api.fibril.xyz/issues/" alt="Artist"><img src="https://img.shields.io/github/issues/Fibril/api.fibril.xyz.svg" alt="Artist"/></a>
@@ -14,5 +14,11 @@
   <br>
 </div>
 
-## Description
-The backend of Fibril's RESTful API.
+## Features
+- API routing, matching urls and used request method.
+- Use of JWTs to verify the identity of users.
+
+## Not yet implemented
+- Rate limiting.
+- Contextual hypertext, using HATEOAS.
+- Logout system, as right now JWT just expire, which ain't good enough.
