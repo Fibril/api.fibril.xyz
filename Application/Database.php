@@ -70,16 +70,16 @@ abstract class Database
 
         try
         {
-            $this->connection = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", "$username", "$password");
+            $this->connection = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", "$username", "$password", [
+                PDO::ATTR_TIMEOUT => 5, // in seconds
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ
+            ]);
         }
         catch (PDOException $exception)
         {
             die('Failed to connect to the database ' . $exception->getMessage());
         }
-
-        $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // PDO::ERRMODE_SILENT
-        $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-        $this->connection->setAttribute(PDO::ATTR_TIMEOUT, 5);
     }
 
     /**
