@@ -26,6 +26,12 @@ class Dispatcher extends RouteCollector
     public function dispatch(Request $request)
     {
         $routeFound = false;
+        $isPreflight = false;
+        $allowedMethods = [];
+
+        if ($request->getMethod() == "OPTIONS")
+            $isPreflight = true;
+
         foreach ($this->routeCollector->routes as $method => $route)
         {
             foreach ($route as $path => $callback)
@@ -38,7 +44,11 @@ class Dispatcher extends RouteCollector
                 {
                     $routeFound = true;
 
-                    if ($request->getMethod() === $method)
+                    if ($isPreflight)
+                    {
+                        array_push($allowedMethods, $method);
+                    }
+                    else if ($request->getMethod() === $method)
                     {
                         // Removes the first match as it is just the requested path.
                         array_shift($matches);
@@ -52,6 +62,13 @@ class Dispatcher extends RouteCollector
                     }
                 }
             }
+        }
+
+        // Check whether the request was a preflight.
+        if ($isPreflight)
+        {
+            header('Access-Control-Allow-Methods: ' . implode(', ', $allowedMethods));
+            die();
         }
 
         // Check whether a route was found, knowing that the requested method wasn't found.
