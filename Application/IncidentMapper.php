@@ -74,7 +74,7 @@ class IncidentMapper extends Mapper
                     $object->getOffenderId(),
                     $object->getOffenderUsername(),
                     $object->getActionTaken(),
-                    $object->getDescription(),
+                    $object->getDescription()
                 ]);
 
                 return $object;
@@ -121,7 +121,7 @@ class IncidentMapper extends Mapper
             $object->getActionTaken(),
             $object->getDescription(),
             $object->getGuildId(),
-            $object->getId(),
+            $object->getId()
         ]);
 
         return $wasSuccessful;
@@ -199,7 +199,7 @@ class IncidentMapper extends Mapper
     }
 
     /**
-     * Retrieves incident by its snowflake id.
+     * Retrieves an incident by its snowflake id.
      *
      * @param  int      $incidentId
      * @return Incident (false if not found)
@@ -227,19 +227,25 @@ class IncidentMapper extends Mapper
      * Retrieves all incidents.
      * 
      * @param  string $search  Any whole or partial search for username or their user id.
-     * @param  int    $perPage Maximum amount of incidents to be returned.
+     * @param  int    $perPage Maximum amount of incidents to return.
      * @param  int    $page    Current page number.
-     * @param  string $after   Fetches all incidents after this incident id.
-     * @param  string $before  Fetches all incidents before this incident id.
+     * @param  string $after   Fetches all incidents created after this timestamp.
+     * @param  string $before  Fetches all incidents created before this timestamp.
      * @return array           (empty array if none found)
      */
     public function findAll($search = null, $perPage = null, $page = null, $after = null, $before = null)
     {
-        if (is_null($before) || $before < 1)
-            $before = (round(microtime(true) * 1000) - FIBRIL_EPOCH) << 22;
+        $after = intval($after);
+        $before = intval($before);
 
-        if (is_null($after) || $after > $before)
-            $after = 0;
+        if (is_null($after) || $after < FIBRIL_EPOCH)
+            $after = FIBRIL_EPOCH;
+
+        if (is_null($before) || $before < FIBRIL_EPOCH || $before < $after)
+            $before = intval(microtime(true) * 1000);
+
+        $afterSnowflake = $after - FIBRIL_EPOCH << 22;
+        $beforeSnowflake = $before - FIBRIL_EPOCH << 22;
 
         $search = is_null($search) || empty($search) ? '%' : '%' . strtolower($search) . '%';
 
@@ -267,10 +273,10 @@ class IncidentMapper extends Mapper
             $search,
             $search,
             $this->guildId,
-            $after,
-            $before,
+            $afterSnowflake,
+            $beforeSnowflake,
             $perPage,
-            $offset,
+            $offset
         ], true);
 
         $incidents = [];
@@ -285,20 +291,32 @@ class IncidentMapper extends Mapper
         return $incidents;
     }
 
+    /**
+     * Retrieves all ids between two timestamps.
+     * 
+     * @param  mixed $after  Fetches all ids after this timestamp.
+     * @param  mixed $before Fetches all ids before this timestamp.
+     * @return array         (empty array if none found)
+     */
     public function getActivity($after, $before)
     {
-        if (is_null($before) || $before < 1)
-            $before = (round(microtime(true) * 1000) - FIBRIL_EPOCH) << 22;
+        $after = intval($after);
+        $before = intval($before);
 
-        if (is_null($after) || $after > $before)
-            $after = 0;
+        if (is_null($after) || $after < FIBRIL_EPOCH)
+            $after = FIBRIL_EPOCH;
+
+        if (is_null($before) || $before < FIBRIL_EPOCH || $before < $after)
+            $before = intval(microtime(true) * 1000);
+
+        $afterSnowflake = $after - FIBRIL_EPOCH << 22;
+        $beforeSnowflake = $before - FIBRIL_EPOCH << 22;
 
         $sql = 'SELECT id FROM incidents WHERE guild_id = ? AND id BETWEEN ? AND ?';
 
-        $data = $this->query($sql, [$this->guildId, $after, $before], true);
+        $data = $this->query($sql, [$this->guildId, $afterSnowflake, $beforeSnowflake], true);
 
-        $result = false;
-
+        $result = [];
         if ($data != false)
             $result = $data;
 
