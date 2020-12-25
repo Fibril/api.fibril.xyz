@@ -67,6 +67,7 @@ class Dispatcher extends RouteCollector
         // Check whether the request was a preflight.
         if ($isPreflight)
         {
+            header("Access-Control-Allow-Headers: Content-Type");
             header('Access-Control-Allow-Methods: ' . implode(', ', $allowedMethods));
             die();
         }
