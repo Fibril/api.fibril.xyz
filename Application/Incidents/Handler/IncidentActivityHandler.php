@@ -13,6 +13,9 @@ class IncidentActivityHandler
         if (JwtGuard::isAuthorized(['guild_ids' => [$guildId => []]]) !== true)
             return Dispatcher::UNAUTHORIZED;
 
+        // if (JwtGuard::isAuthorized(['guild_ids' => [$guildId => ['owner' => true]]]) !== true)
+        //     return Dispatcher::UNAUTHORIZED;
+
         $incidentMapper = new IncidentMapper($guildId);
 
         $params = $request->getQuery();
@@ -26,16 +29,13 @@ class IncidentActivityHandler
 
         $data = [];
 
-        if ($results !== false)
+        foreach ($results as $result)
         {
-            foreach ($results as $result)
-            {
-                $timestamp = ($result['id'] >> 22) + FIBRIL_EPOCH;
-                $date = date('Y-m-d\T00:00:00\Z', $timestamp / 1000);
+            $timestamp = ($result['id'] >> 22) + FIBRIL_EPOCH;
+            $date = date('Y-m-d\TH:i:s\Z', $timestamp / 1000);
 
-                if (!in_array($date, $data))
-                    array_push($data, $date);
-            }
+            if (!in_array($date, $data))
+                array_push($data, $date);
         }
 
         die(json_encode($data, JSON_PRETTY_PRINT));
