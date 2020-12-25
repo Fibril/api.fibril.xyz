@@ -114,8 +114,9 @@ class Incident implements \JsonSerializable
             'offender_username' => $this->getOffenderUsername(),
             'action_taken' => $this->actionTaken,
             'description' => $this->description,
-            'created_at' => date('Y-m-d\TH:i:s\Z', $this->getTimestamp() / 1000),
-            'last_modified_at' => date('Y-m-d\TH:i:s\Z', $this->getTimestamp() / 1000), // TODO: Remove this line.
+            // 'created_at' => date('Y-m-d\TH:i:s\Z', $this->getTimestamp() / 1000),
+            'created_at' => $this->getTimestamp(),
+            // 'last_modified_at' => date('Y-m-d\TH:i:s\Z', $this->getTimestamp() / 1000), // TODO: Remove this line.
             '_links' => [
                 'self' => [
                     'href' => 'https://api.fibril.xyz/guilds/' . $this->guildId . '/incidents/' . $this->id
